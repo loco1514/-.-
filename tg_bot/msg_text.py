@@ -40,6 +40,12 @@ msg_register_fail = "Registration failed."
     :meta hide-value:
 """
 
+msg_register_confirm = "Create a user with '{name}' name?"
+"""A message that asks to confirm a user name.
+
+    :meta hide-value:
+"""
+
 msg_select_booking = "Your bookings"
 """A message that displays to the user their bookings.
 

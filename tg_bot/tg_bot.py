@@ -147,7 +147,7 @@ async def start_command(message: Message, state: FSMContext, bot: Bot):
             await state.update_data(msg_id=msg.message_id)
             await state.update_data(is_admin=is_admin)
         else:
-            msg = await message.answer(msg_text.msg_welcome_new, reply_markup=kb.create_user_menu)
+            msg = await message.answer(msg_text.msg_welcome_new, reply_markup=kb.input_user_name_menu)
             await state.update_data(msg_id=msg.message_id)
     except Exception as e:
         logging.error(str(e))
@@ -168,7 +168,7 @@ async def main_menu(callback_query: CallbackQuery, state: FSMContext):
     await send_edit_message(callback_query, msg_text.msg_choose_action, reply_markup=menu)
 
 
-@router.callback_query(F.data == "create_user")
+@router.callback_query(F.data == "input_user_name")
 @check_query
 async def input_user_name(callback_query: CallbackQuery, state: FSMContext):
     """
@@ -183,7 +183,21 @@ async def input_user_name(callback_query: CallbackQuery, state: FSMContext):
 
 
 @router.message(MenuStates.create_user)
-async def create_user(message: Message, state: FSMContext):
+async def create_user_confirmation(message: Message, state: FSMContext):
+    """
+    A handler function that asks to confirm the user name.
+
+    :param Message message: The message from the user.
+    :param FSMContext state: The finite state machine context for the user.
+    """
+    await state.set_state(None)
+    msg = await message.answer(msg_text.msg_register_confirm.format(name=message.text), reply_markup=kb.create_user_confirm_menu)
+    await state.update_data(msg_id=msg.message_id)
+    await state.update_data(username=message.text)
+
+
+@router.callback_query(F.data == "create_user")
+async def create_user(callback_query: CallbackQuery, state: FSMContext):
     """
     A handler function that handles the message from the user in the create character state.
     It creates a new character for the user with the given name and sends a message with the main menu.
@@ -191,14 +205,13 @@ async def create_user(message: Message, state: FSMContext):
     :param Message message: The message from the user.
     :param FSMContext state: The finite state machine context for the user.
     """
-    await state.set_state(None)
-    if await api_create_user(message.from_user.id, message.text):
-        msg = await message.answer(f"{msg_text.msg_register_succ}\n{msg_text.msg_welcome.format(name=message.text)}", reply_markup=kb.main_menu_peer)
+    data = await state.get_data()
+    username = data.get('username')
+    if await api_create_user(callback_query.from_user.id, username):
+        await send_edit_message(callback_query, f"{msg_text.msg_register_succ}\n{msg_text.msg_welcome.format(name=username)}", reply_markup=kb.main_menu_peer)
         await state.update_data(is_admin=False)
     else:
-        msg = await message.answer(msg_text.msg_register_fail, reply_markup=kb.create_user_menu)
-
-    await state.update_data(msg_id=msg.message_id)
+        await send_edit_message(callback_query, msg_text.msg_register_fail, reply_markup=kb.input_user_name_menu)
 
 
 @router.callback_query(F.data == "get_bookings")
