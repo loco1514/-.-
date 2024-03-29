@@ -147,12 +147,14 @@ async def start_command(message: Message, state: FSMContext, bot: Bot):
             await state.update_data(msg_id=msg.message_id)
             await state.update_data(is_admin=is_admin)
         else:
-            await message.answer(msg_text.msg_welcome_new, reply_markup=kb.create_user_menu)
+            msg = await message.answer(msg_text.msg_welcome_new, reply_markup=kb.create_user_menu)
+            await state.update_data(msg_id=msg.message_id)
     except Exception as e:
         logging.error(str(e))
 
 
 @router.callback_query(F.data == "main_menu")
+@check_query
 async def main_menu(callback_query: CallbackQuery, state: FSMContext):
     """
     A handler function that handles the callback query for the main menu button.
@@ -167,6 +169,7 @@ async def main_menu(callback_query: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "create_user")
+@check_query
 async def input_user_name(callback_query: CallbackQuery, state: FSMContext):
     """
     A handler function that handles the callback query for the create user button.
@@ -191,10 +194,11 @@ async def create_user(message: Message, state: FSMContext):
     await state.set_state(None)
     if await api_create_user(message.from_user.id, message.text):
         msg = await message.answer(f"{msg_text.msg_register_succ}\n{msg_text.msg_welcome.format(name=message.text)}", reply_markup=kb.main_menu_peer)
-        await state.update_data(msg_id=msg.message_id)
         await state.update_data(is_admin=False)
     else:
         msg = await message.answer(msg_text.msg_register_fail, reply_markup=kb.create_user_menu)
+
+    await state.update_data(msg_id=msg.message_id)
 
 
 @router.callback_query(F.data == "get_bookings")
