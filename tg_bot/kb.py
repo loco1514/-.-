@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton, KeyboardButtonRequestUsers, ReplyKeyboardRemove
 
 back_to_menu_btn = InlineKeyboardButton(
-    text="🔙 Back", callback_data='main_menu')
+    text="🔙 Назад", callback_data='main_menu')
 """A button that takes the user back to the main menu.
 
     :meta hide-value:
@@ -14,7 +14,8 @@ back_menu = InlineKeyboardMarkup(inline_keyboard=[[back_to_menu_btn]])
 """
 
 input_user_name_button = [
-    [InlineKeyboardButton(text="Create", callback_data="input_user_name")],
+    [InlineKeyboardButton(text="Зарегистрироваться",
+                          callback_data="input_user_name")],
 ]
 """A list of lists of buttons that allows to create a user.
 
@@ -29,8 +30,8 @@ input_user_name_menu = InlineKeyboardMarkup(
 """
 
 create_user_confirm_button = [
-    [InlineKeyboardButton(text="Yes", callback_data="create_user"),
-     InlineKeyboardButton(text="No", callback_data="input_user_name")],
+    [InlineKeyboardButton(text="Да", callback_data="create_user"),
+     InlineKeyboardButton(text="Нет", callback_data="input_user_name")],
 ]
 """A list of lists of buttons that allows to confirm a user name input.
     :meta hide-value:
@@ -44,8 +45,8 @@ create_user_confirm_menu = InlineKeyboardMarkup(
 """
 
 update_admin_confirm_button = [
-    [InlineKeyboardButton(text="Yes", callback_data="update_admin"),
-     InlineKeyboardButton(text="No", callback_data="main_menu")],
+    [InlineKeyboardButton(text="Да", callback_data="update_admin"),
+     InlineKeyboardButton(text="Нет", callback_data="main_menu")],
 ]
 """A list of lists of buttons that allows to confirm an admin update.
     :meta hide-value:
@@ -59,7 +60,7 @@ update_admin_confirm_menu = InlineKeyboardMarkup(
 """
 
 main_menu_peer_buttons = [
-    [InlineKeyboardButton(text="My bookings", callback_data="get_bookings")]
+    [InlineKeyboardButton(text="Мои брони", callback_data="get_bookings")]
 ]
 """A list of lists of buttons that allows a peer to access various features of the bot.
 
@@ -72,9 +73,11 @@ main_menu_peer = InlineKeyboardMarkup(inline_keyboard=main_menu_peer_buttons)
     :meta hide-value:
 """
 main_menu_admin_buttons = [
-    [InlineKeyboardButton(text="My bookings", callback_data="get_bookings")],
-    [InlineKeyboardButton(text="Add admin", callback_data="add_admin")],
-    [InlineKeyboardButton(text="View reports", callback_data="view_reports")],
+    [InlineKeyboardButton(text="Мои брони", callback_data="get_bookings")],
+    [InlineKeyboardButton(text="Добавить администратора",
+                          callback_data="add_admin")],
+    [InlineKeyboardButton(text="Посмотреть жалобы",
+                          callback_data="view_reports")],
 ]
 """A list of lists of buttons that allows an admin to access various features of the bot.
 
@@ -88,4 +91,4 @@ main_menu_admin = InlineKeyboardMarkup(inline_keyboard=main_menu_admin_buttons)
 """
 
 contact_request_kb = ReplyKeyboardMarkup(
-    keyboard=[[KeyboardButton(text="📞 Contact", request_users=KeyboardButtonRequestUsers(request_id=1, max_quantity=1))]], resize_keyboard=True)
+    keyboard=[[KeyboardButton(text="📞 Отправить контакт", request_users=KeyboardButtonRequestUsers(request_id=1, max_quantity=1))]], resize_keyboard=True)
