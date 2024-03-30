@@ -81,6 +81,16 @@ async def send_edit_message(callback_query: CallbackQuery, msg: str, reply_marku
             logging.error(str(e))
 
 
+async def remove_main_message(chat_id, state: FSMContext, bot: Bot):
+    try:
+        data = await state.get_data()
+        msg_id = data.get('msg_id')
+        if msg_id:
+            await bot.delete_message(chat_id, msg_id)
+    except Exception as e:
+        logging.error(str(e))
+
+
 async def api_get_user(id: str):
     """
     A helper function that returns the user object for the given user ID.
@@ -88,6 +98,10 @@ async def api_get_user(id: str):
     :param str id: The ID of the user.
     """
     # TODO API request
+    if id == 6432798382:
+        return "Contact", False
+    elif id == 6902285437:
+        return None, None
     if user_exists:
         return username, is_admin
     else:
@@ -124,6 +138,14 @@ async def api_cancel_booking(id: str):
     return True
 
 
+async def api_update_admin(id: str):
+    """ 
+    A helper function that updates a user with the given ID to admin.
+    """
+    # TODO API request
+    return True
+
+
 @router.message(Command("start"))
 async def start_command(message: Message, state: FSMContext, bot: Bot):
     """
@@ -135,11 +157,7 @@ async def start_command(message: Message, state: FSMContext, bot: Bot):
     :param Bot bot: The bot instance.
     """
     try:
-        data = await state.get_data()
-        msg_id = data.get('msg_id')
-        if msg_id:
-            if not await bot.delete_message(message.chat.id, msg_id):
-                return
+        await remove_main_message(chat_id=message.chat.id, state=state, bot=bot)
         name, is_admin = await api_get_user(message.from_user.id)
         if name:
             menu = kb.main_menu_admin if is_admin else kb.main_menu_peer
@@ -190,10 +208,11 @@ async def create_user_confirmation(message: Message, state: FSMContext):
     :param Message message: The message from the user.
     :param FSMContext state: The finite state machine context for the user.
     """
-    await state.set_state(None)
+    current_state = await state.get_state()
     msg = await message.answer(msg_text.msg_register_confirm.format(name=message.text), reply_markup=kb.create_user_confirm_menu)
-    await state.update_data(msg_id=msg.message_id)
     await state.update_data(username=message.text)
+    await state.update_data(msg_id=msg.message_id)
+    await state.set_state(None)
 
 
 @router.callback_query(F.data == "create_user")
@@ -258,6 +277,75 @@ async def cancel_booking(callback_query: CallbackQuery, **kwargs):
     else:
         msg = msg_text.msg_cancel_booking_fail
     await get_bookings(callback_query=callback_query, msg=msg, **kwargs)
+
+
+@router.callback_query(F.data == "add_admin")
+@check_query
+async def add_admin(callback_query: CallbackQuery,  state: FSMContext, bot: Bot, **kwargs):
+    """
+    A handler function that handles the callback query for the add admin button.
+
+    :param CallbackQuery callback_query: The callback query from the user.
+    :param str msg: (optional) The message to be sent. Defaults to None.
+    :param \*\*kwargs: Additional keyword arguments.
+    """
+    await remove_main_message(
+        chat_id=callback_query.message.chat.id, state=state, bot=bot)
+    await callback_query.message.answer(msg_text.msg_share_contact, reply_markup=kb.contact_request_kb)
+
+
+@router.message(F.user_shared)
+async def handle_contact(message: Message, state: FSMContext):
+    """
+    A handler function that handles the message event when a user sends a contact.
+
+    :param types.Message message: The message from the user.
+    :param FSMContext state: The state context.
+    """
+    contact_id = message.user_shared.user_id
+    name, is_admin = await api_get_user(message.user_shared.user_id)
+    if name and is_admin or not name:
+        if not name:
+            await message.answer(msg_text.msg_shared_contact_not_found,
+                                 reply_markup=ReplyKeyboardRemove())
+        else:
+            await message.answer(msg_text.msg_shared_contact_already_admin,
+                                 reply_markup=ReplyKeyboardRemove())
+        msg = await message.answer(msg_text.msg_choose_action, reply_markup=kb.main_menu_admin)
+        await state.update_data(msg_id=msg.message_id)
+    else:
+        await message.answer(msg_text.msg_shared_contact_exists,
+                             reply_markup=ReplyKeyboardRemove())
+        builder = InlineKeyboardBuilder()
+        builder.button(text=msg_text.btn_yes,
+                       callback_data=f"update_admin#{contact_id}")
+        builder.button(text=msg_text.btn_no,
+                       callback_data="update_admin#")
+        builder.adjust(2)
+        msg = await message.answer(msg_text.msg_add_admin_confirm.format(login=name), reply_markup=builder.as_markup())
+        await state.update_data(msg_id=msg.message_id)
+
+
+@router.callback_query(F.data.startswith("update_admin#"))
+@check_query
+async def update_admin(callback_query: CallbackQuery,  state: FSMContext, bot: Bot, **kwargs):
+    """
+    A handler function that handles the callback query for the update admin button.
+
+    :param CallbackQuery callback_query: The callback query from the user.
+    :param FSMContext state: The state context.
+    :param \*\*kwargs: Additional keyword arguments.
+    """
+    await remove_main_message(
+        chat_id=callback_query.message.chat.id, state=state, bot=bot)
+    _, new_admin_id = callback_query.data.split('#')
+    if new_admin_id:
+        msg_result = msg_text.msg_add_admin_succ if await api_update_admin(new_admin_id) else msg_text.msg_add_admin_fail
+        await callback_query.message.answer(msg_result, reply_markup=ReplyKeyboardRemove())
+    else:
+        await callback_query.message.answer(msg_text.msg_add_admin_cancel, reply_markup=ReplyKeyboardRemove())
+    msg = await callback_query.message.answer(msg_text.msg_choose_action, reply_markup=kb.main_menu_admin)
+    await state.update_data(msg_id=msg.message_id)
 
 
 async def main() -> None:

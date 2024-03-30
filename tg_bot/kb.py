@@ -1,4 +1,4 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton, KeyboardButtonRequestUsers, ReplyKeyboardRemove
 
 back_to_menu_btn = InlineKeyboardButton(
     text="🔙 Back", callback_data='main_menu')
@@ -43,6 +43,21 @@ create_user_confirm_menu = InlineKeyboardMarkup(
     :meta hide-value:
 """
 
+update_admin_confirm_button = [
+    [InlineKeyboardButton(text="Yes", callback_data="update_admin"),
+     InlineKeyboardButton(text="No", callback_data="main_menu")],
+]
+"""A list of lists of buttons that allows to confirm an admin update.
+    :meta hide-value:
+"""
+
+update_admin_confirm_menu = InlineKeyboardMarkup(
+    inline_keyboard=update_admin_confirm_button)
+"""A keyboard markup that contains the update admin confirm buttons.
+
+    :meta hide-value:
+"""
+
 main_menu_peer_buttons = [
     [InlineKeyboardButton(text="My bookings", callback_data="get_bookings")]
 ]
@@ -71,3 +86,6 @@ main_menu_admin = InlineKeyboardMarkup(inline_keyboard=main_menu_admin_buttons)
 
     :meta hide-value:
 """
+
+contact_request_kb = ReplyKeyboardMarkup(
+    keyboard=[[KeyboardButton(text="📞 Contact", request_users=KeyboardButtonRequestUsers(request_id=1, max_quantity=1))]], resize_keyboard=True)

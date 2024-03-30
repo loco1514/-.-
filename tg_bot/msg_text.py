@@ -78,6 +78,65 @@ msg_choose_action = "Choose an action:"
     :meta hide-value:
 """
 
+msg_share_contact = "Please share a contact to add as admin:"
+"""A message that prompts the user to share a contact.
+
+    :meta hide-value:  
+"""
+
+msg_shared_contact_already_admin = "This user is already an admin. Aborted."
+"""A message that informs the user that a shared contact is already an admin.
+
+    :meta hide-value:  
+"""
+
+msg_shared_contact_exists = "User found, you can proceed."
+"""A message that informs the user that a shared contact is found in the db.
+
+    :meta hide-value:  
+"""
+
+msg_shared_contact_not_found = "User not found, ask them to register in this bot."
+"""A message that informs the user that a shared contact is not found in the db.
+
+    :meta hide-value:  
+"""
+
+msg_add_admin_confirm = "User with login: '{login}' will be promoted to admin. Proceed?"
+"""A message that asks to confirm a admin promotion.
+
+    :meta hide-value:
+"""
+
+msg_add_admin_succ = "Admin added successfully."
+"""A message that confirms the successful addition of an admin.
+
+    :meta hide-value:
+"""
+
+msg_add_admin_fail = "An error occured. Admin was not added. Please, try again later"
+"""A message that reports the failed addition of an admin.
+
+    :meta hide-value:
+"""
+
+msg_add_admin_cancel = "Cancelled. Admin was not added."
+"""A message that reports the cancelled addition of an admin.
+
+    :meta hide-value:
+"""
+
+btn_yes = "Yes"
+"""A button that confirms an action.
+
+    :meta hide-value:
+"""
+
+btn_no = "No"
+"""A button that cancels an action.
+
+    :meta hide-value:   
+"""
 
 btn_cancel_booking = "Cancel booking"
 """A button that cancels a booking.
