@@ -1,4 +1,4 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton, KeyboardButtonRequestUsers, ReplyKeyboardRemove
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton, KeyboardButtonRequestUsers, WebAppInfo
 
 back_to_menu_btn = InlineKeyboardButton(
     text="🔙 Назад", callback_data='main_menu')
@@ -60,7 +60,9 @@ update_admin_confirm_menu = InlineKeyboardMarkup(
 """
 
 main_menu_peer_buttons = [
-    [InlineKeyboardButton(text="Мои брони", callback_data="get_bookings")]
+    [InlineKeyboardButton(text="Мои брони", callback_data="get_bookings")],
+    [InlineKeyboardButton(
+        text="Забронировать", web_app=WebAppInfo(url='https://main--test1meetingroombooking.netlify.app/'))]
 ]
 """A list of lists of buttons that allows a peer to access various features of the bot.
 
@@ -78,6 +80,8 @@ main_menu_admin_buttons = [
                           callback_data="add_admin")],
     [InlineKeyboardButton(text="Посмотреть жалобы",
                           callback_data="view_reports")],
+    [InlineKeyboardButton(
+        text="Забронировать", web_app=WebAppInfo(url='https://main--test1meetingroombooking.netlify.app/'))]
 ]
 """A list of lists of buttons that allows an admin to access various features of the bot.
 
