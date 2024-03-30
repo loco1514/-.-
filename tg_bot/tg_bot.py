@@ -158,6 +158,7 @@ async def start_command(message: Message, state: FSMContext, bot: Bot):
     """
     try:
         await remove_main_message(chat_id=message.chat.id, state=state, bot=bot)
+        await message.answer(msg_text.msg_start, reply_markup=ReplyKeyboardRemove())
         name, is_admin = await api_get_user(message.from_user.id)
         if name:
             menu = kb.main_menu_admin if is_admin else kb.main_menu_peer

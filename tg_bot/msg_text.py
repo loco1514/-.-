@@ -10,13 +10,19 @@ SPEC_MSG_END = '&#x200D;'
     :meta hide-value:
 """
 
-msg_welcome_new = "Welcome! Please, register to start using."
+msg_start = "👋 Welcome to the Meeting Room Bot!"
+"""A start message of the bot.
+
+    :meta hide-value:
+"""
+
+msg_welcome_new = "Please, register to start using."
 """A message that welcomes a new user and prompts them to create a user.
 
     :meta hide-value:
 """
 
-msg_welcome = "Welcome, {name}!"
+msg_welcome = "Hello, {name}!"
 """A message that welcomes an existing user by their name.
 
     :meta hide-value:
