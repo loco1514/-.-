@@ -32,6 +32,9 @@ bookings = [{'id': 1, 'date': '2024-03-30', 'time_start': '09:00', 'time_end': '
                 'time_end': '11:00', 'room': 'room2', 'cancelled': False},
             {'id': 3, 'date': '2024-04-02', 'time_start': '11:00', 'time_end': '12:00', 'room': 'room3', 'cancelled': False}]
 
+reports = [{'date': '2024-03-30', 'from_name': 'User1', 'from_id': 339095791, 'to_name': 'User2', 'to_id': 6432798382, 'reason': 'reason1'},
+           {'date': '2024-03-31', 'from_name': 'User2', 'from_id': 6432798382, 'to_name': 'User3', 'to_id': 339095791, 'reason': 'reason2'},]
+
 
 def check_query(func):
     """
@@ -146,6 +149,10 @@ async def api_update_admin(id: str):
     """
     # TODO API request
     return True
+
+
+async def api_get_reports():
+    return reports
 
 
 @router.message(Command("start"))
@@ -349,6 +356,29 @@ async def update_admin(callback_query: CallbackQuery,  state: FSMContext, bot: B
         await callback_query.message.answer(msg_text.msg_add_admin_cancel, reply_markup=ReplyKeyboardRemove())
     msg = await callback_query.message.answer(msg_text.msg_choose_action, reply_markup=kb.main_menu_admin)
     await state.update_data(msg_id=msg.message_id)
+
+
+@router.callback_query(F.data == "view_reports")
+@check_query
+async def view_reports(callback_query: CallbackQuery, **kwargs):
+    """
+    A handler function that handles the callback query for the get reports button.
+    It edits the message with the current bookings of the user.
+
+    :param CallbackQuery callback_query: The callback query from the user.
+    :param \*\*kwargs: Additional keyword arguments.
+    """
+    reports = await api_get_reports()
+    msg = msg_text.format_string(''.join(
+        [msg_text.msg_report_text.format(
+            date=report['date'],
+            from_name=report['from_name'],
+            from_id=report['from_id'],
+            to_name=report['to_name'],
+            to_id=report['to_id'],
+            reason=report['reason']
+        ) for report in reports]))
+    await send_edit_message(callback_query, msg, reply_markup=kb.back_menu)
 
 
 async def on_startup(bot: Bot):

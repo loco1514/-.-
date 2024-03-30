@@ -144,6 +144,12 @@ msg_notification_text_end = "🔔 #Уведомление:\nБронь комн�
     :meta hide-value:
 """
 
+msg_report_text = "{date}: <a href=\"tg://user?id={from_id}\">{from_name}</a> пожаловался на <a href=\"tg://user?id={to_id}\">{to_name}</a>: '{reason}'"
+"""A message that reports a booking violation.
+
+    :meta hide-value:
+"""
+
 btn_yes = "Да"
 """A button that confirms an action.
 
