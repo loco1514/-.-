@@ -132,6 +132,18 @@ msg_add_admin_cancel = "Cancelled. Admin was not added."
     :meta hide-value:
 """
 
+msg_notification_text_start = "🔔 #Notification:\nYou've booked '{room}' at {time} ⏳.\nDon't forget to be there! 👍"
+"""A notification message that the booking is about to start.
+
+    :meta hide-value:
+"""
+
+msg_notification_text_end = "🔔 #Notification:\nThe booking of '{room}' is expiring at {time} ⌛.\nPlease remember to clean up and leave on time! 🧹🚪"
+"""A notification message that the booking is about to end.
+
+    :meta hide-value:
+"""
+
 btn_yes = "Yes"
 """A button that confirms an action.
 

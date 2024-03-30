@@ -14,6 +14,7 @@ import kb
 import msg_text
 import html
 from functools import wraps
+from notifications import NotificationService
 
 load_dotenv()
 TOKEN = getenv('TOKEN')
@@ -21,6 +22,7 @@ if TOKEN is None:
     raise ValueError('No token provided')
 
 router = Router()
+notification_service = NotificationService()
 
 user_exists = False
 is_admin = False
@@ -349,6 +351,14 @@ async def update_admin(callback_query: CallbackQuery,  state: FSMContext, bot: B
     await state.update_data(msg_id=msg.message_id)
 
 
+async def on_startup(bot: Bot):
+    await notification_service.start(bot)
+
+
+async def on_shutdown(bot: Bot):
+    await notification_service.stop()
+
+
 async def main() -> None:
     """
     The main function that creates the bot and the dispatcher and starts polling for updates.
@@ -357,6 +367,8 @@ async def main() -> None:
 
     dp = Dispatcher(storage=MemoryStorage())
     dp.include_router(router)
+    dp.startup.register(on_startup)
+    dp.shutdown.register(on_shutdown)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
