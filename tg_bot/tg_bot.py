@@ -28,13 +28,13 @@ notification_service = NotificationService()
 user_exists = True
 is_admin = True
 username = "Test"
-bookings = [{'id': 1, 'date': '2024-03-30', 'time_start': '09:00', 'time_end': '10:00', 'room': 'room1', 'cancelled': False},
-            {'id': 2, 'date': '2024-03-31', 'time_start': '10:00',
-                'time_end': '11:00', 'room': 'room2', 'cancelled': False},
-            {'id': 3, 'date': '2024-04-02', 'time_start': '11:00', 'time_end': '12:00', 'room': 'room3', 'cancelled': False}]
+# bookings = [{'id': 1, 'date': '2024-03-30', 'time_start': '09:00', 'time_end': '10:00', 'room': 'room1', 'cancelled': False},
+#             {'id': 2, 'date': '2024-03-31', 'time_start': '10:00',
+#                 'time_end': '11:00', 'room': 'room2', 'cancelled': False},
+#             {'id': 3, 'date': '2024-04-02', 'time_start': '11:00', 'time_end': '12:00', 'room': 'room3', 'cancelled': False}]
 
-reports = [{'date': '2024-03-30', 'from_name': 'User1', 'from_id': 339095791, 'to_name': 'User2', 'to_id': 6432798382, 'reason': 'reason1'},
-           {'date': '2024-03-31', 'from_name': 'User2', 'from_id': 6432798382, 'to_name': 'User3', 'to_id': 339095791, 'reason': 'reason2'},]
+# reports = [{'date': '2024-03-30', 'from_name': 'User1', 'from_id': 339095791, 'to_name': 'User2', 'to_id': 6432798382, 'reason': 'reason1'},
+#            {'date': '2024-03-31', 'from_name': 'User2', 'from_id': 6432798382, 'to_name': 'User3', 'to_id': 339095791, 'reason': 'reason2'},]
 URL = "http://localhost:5000/api/meetingRoomBooking" 
 
 def check_query(func):
@@ -159,7 +159,7 @@ async def api_get_bookings(telegram_id: str):
         if response.status_code == 200:
             bookings = response.json()
             print(bookings)
-            formatted_bookings = [{'id': booking['id'], 'text': f"{booking['data']} {booking['startTime']} - {booking['endTime']} {booking['meetingRoom']['description']}"} for booking in bookings if not booking['canceled']]
+            formatted_bookings = [{'id': booking['id'], 'text': f"{booking['data'][:5]} {booking['startTime']} - {booking['endTime']} floor{booking['meetingRoom']['floor']}"} for booking in bookings if not booking['canceled']]
             return formatted_bookings
         elif response.status_code == 404:
             logging.error("Бронирования для указанного пользователя не найдены.")
@@ -333,7 +333,8 @@ async def get_bookings(callback_query: CallbackQuery, msg: str = None, **kwargs)
     :param \*\*kwargs: Additional keyword arguments.
     """
     bookings = await api_get_bookings(callback_query.from_user.id)
-    print(booking)
+    print(bookings)
+
     builder = InlineKeyboardBuilder()
     for booking in bookings:
         builder.button(text=booking['text'],
