@@ -116,6 +116,7 @@ const meet_rooms = "20 этаж meet room 1";
 const meet_rooms2 = "17 этаж meet room 1";
 
 const apiUrl = `http://localhost:5000/api/meetingRoomBooking/GetBookingsByData?data=${date}`;
+
 console.log(apiUrl);
   
   fetch(apiUrl)
@@ -136,6 +137,30 @@ console.log(apiUrl);
       i++
      }
     // Далее вы можете использовать полученные данные для отображения на странице или в других целях
+   })
+   .catch(error => {
+     console.error('There was a problem with the fetch operation:', error);
+   });
+ 
+   const apiUrlBooking = `http://localhost:5000/api/meetingRoomBooking/http://localhost:5000/api/meetingRoomBooking/CreateBooking?userId=${id}&startTime=${start}endTime=${endTime}data=${date}&meetingRoomId=${meetingroomId}`;
+
+   fetch(apiUrlBooking)
+  .then(response => {
+    // Проверяем статус ответа
+  if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    // Парсим ответ в формат JSON
+    return response.json();
+  })
+   .then(data => {
+    // Обрабатываем полученные данные
+     console.log('Забронировали слот:', data); 
+    //  let i = 0
+    //  while(i < (Object.keys(data).length)) {
+    //   addRectangle(data[i].startTime, data[i].endTime, meet_rooms)
+    //   i++
+    //  }
    })
    .catch(error => {
      console.error('There was a problem with the fetch operation:', error);
