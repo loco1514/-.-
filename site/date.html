@@ -102,36 +102,37 @@
 <script>
   // Получаем параметры URL
   const urlParams = new URLSearchParams(window.location.search);
-  const year = urlParams.get('year');
-  console.log(year);
-  const month = urlParams.get('month');
-  console.log(month);
-  const day = urlParams.get('day');
-  console.log(day);
-  //const data = day + "." + month + "." + year;
-  const clocks_begin = 9;
-  const clocks_end = 10;
-  const meet_rooms = "20 этаж meet room 1";
- // const apiUrl = `/api/bookings?data=${date}`;
-  //console.log(apiUrl);
+const year = urlParams.get('year');
+console.log(year);
+const month = urlParams.get('month');
+console.log(month);
+const day = urlParams.get('day');
+console.log(day);
+const date = `${day.padStart(2, '0')}.${month.padStart(2, '0')}.${year}`;
+console.log(date); // Corrected variable name from "date" to "data"
+const clocks_begin = 9;
+const clocks_end = 10;
+const meet_rooms = "20 этаж meet room 1";
+const apiUrl = `http://localhost:5000/api/meetingRoomBooking?data=${date}`;
+console.log(apiUrl);
   
-  //fetch(apiUrl)
-  //.then(response => {
+  fetch(apiUrl)
+  .then(response => {
     // Проверяем статус ответа
-  //  if (!response.ok) {
-   //   throw new Error('Network response was not ok');
-    //}
+  if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
     // Парсим ответ в формат JSON
-    //return response.json();
- // })
-  // .then(data => {
+    return response.json();
+  })
+   .then(data => {
     // Обрабатываем полученные данные
-   //  console.log('Забронированные слоты на указанную дату:', data);
+     console.log('Забронированные слоты на указанную дату:', data);
     // Далее вы можете использовать полученные данные для отображения на странице или в других целях
-  // })
-  // .catch(error => {
-   //  console.error('There was a problem with the fetch operation:', error);
-   //});
+   })
+   .catch(error => {
+     console.error('There was a problem with the fetch operation:', error);
+   });
 
   // Функция для добавления прямоугольника на страницу
   function addRectangle(startTime, endTime, meetRoom) {
