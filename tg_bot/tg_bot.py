@@ -159,7 +159,7 @@ async def api_get_bookings(telegram_id: str):
         if response.status_code == 200:
             bookings = response.json()
             print(bookings)
-            formatted_bookings = [{'id': booking['id'], 'text': f"{booking['data'][:5]} {booking['startTime']} - {booking['endTime']} {booking['meetingRoom']['description']}"} for booking in bookings if not booking['canceled']]
+            formatted_bookings = [{'id': booking['id'], 'text': f"{booking['data']} {booking['startTime']} - {booking['endTime']} {booking['meetingRoom']['description']}"} for booking in bookings if not booking['canceled']]
             return formatted_bookings
         elif response.status_code == 404:
             logging.error("Бронирования для указанного пользователя не найдены.")
@@ -333,6 +333,7 @@ async def get_bookings(callback_query: CallbackQuery, msg: str = None, **kwargs)
     :param \*\*kwargs: Additional keyword arguments.
     """
     bookings = await api_get_bookings(callback_query.from_user.id)
+    print(booking)
     builder = InlineKeyboardBuilder()
     for booking in bookings:
         builder.button(text=booking['text'],
