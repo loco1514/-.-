@@ -985,3 +985,20 @@
     z-index: 38;
   }
   
+  .book-button {
+    padding: 8px 16px; /* Add padding to the button */
+    background-color: #007bff; /* Set background color */
+    color: #fff; /* Set text color */
+    border: none; /* Remove border */
+    border-radius: 4px; /* Add border radius */
+    cursor: pointer; /* Set cursor to pointer on hover */
+    transition: background-color 0.3s; /* Add transition effect */
+    position: absolute; /* Set position to absolute */
+    top: 40%; /* Align with the top of the container */
+    left: calc(80% + 16px); /* Position the button to the right of the "Bron" label */
+    transform: translate(-100%, 0); /* Move the button to the left by its own width */
+  }
+  
+  .book-button:hover {
+    background-color: #0056b3; /* Change background color on hover */
+  }
