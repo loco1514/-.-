@@ -8,10 +8,10 @@ class NotificationService:
         self.task = None
 
     async def api_get_notifications(self):
-        return []
-        # {'id': 339095791, 'type': 'start',
-        #     'time': '09:00', 'room': 'room_1'},
-        # {'id': 339095791, 'type': 'end', 'time': '10:00', 'room': 'room_2'},]
+        #return []
+        return [{'id': 785537103, 'type': 'start',
+            'time': '12:50', 'meetingRoomId': '17'}]
+            #{'id': 339095791, 'type': 'end', 'time': '10:00', 'room': 'room_2'},]
 
     async def notifications_sender(self, bot: Bot):
         while True:
@@ -20,7 +20,7 @@ class NotificationService:
                 notification_template = msg_text.msg_notification_text_start if notification[
                     'type'] == 'start' else msg_text.msg_notification_text_end
                 notification_text = notification_template.format(
-                    time=notification['time'], room=notification['room'])
+                    time=notification['time'], room=notification['meetingRoomId'])
                 await bot.send_message(chat_id=notification['id'], text=notification_text)
             await asyncio.sleep(60)
 
