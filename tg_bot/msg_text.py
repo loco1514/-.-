@@ -52,7 +52,7 @@ msg_register_confirm = "Создать пользователя с именем 
     :meta hide-value:
 """
 
-msg_select_booking = "Ваши брони:"
+msg_select_booking = "Ваши бронирования:"
 """A message that displays to the user their bookings.
 
     :meta hide-value:

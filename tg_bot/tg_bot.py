@@ -1,3 +1,4 @@
+import requests
 import asyncio
 import logging
 from aiogram import F, Bot, Dispatcher, Router, types
@@ -24,8 +25,8 @@ if TOKEN is None:
 router = Router()
 notification_service = NotificationService()
 
-user_exists = False
-is_admin = False
+user_exists = True
+is_admin = True
 username = "Test"
 bookings = [{'id': 1, 'date': '2024-03-30', 'time_start': '09:00', 'time_end': '10:00', 'room': 'room1', 'cancelled': False},
             {'id': 2, 'date': '2024-03-31', 'time_start': '10:00',
@@ -34,7 +35,7 @@ bookings = [{'id': 1, 'date': '2024-03-30', 'time_start': '09:00', 'time_end': '
 
 reports = [{'date': '2024-03-30', 'from_name': 'User1', 'from_id': 339095791, 'to_name': 'User2', 'to_id': 6432798382, 'reason': 'reason1'},
            {'date': '2024-03-31', 'from_name': 'User2', 'from_id': 6432798382, 'to_name': 'User3', 'to_id': 339095791, 'reason': 'reason2'},]
-
+URL = "http://localhost:5000/api/meetingRoomBooking" 
 
 def check_query(func):
     """
@@ -96,64 +97,140 @@ async def remove_main_message(chat_id, state: FSMContext, bot: Bot):
         logging.error(str(e))
 
 
-async def api_get_user(id: str):
+async def api_get_user(telegram_id: int):
     """
     A helper function that returns the user object for the given user ID.
 
-    :param str id: The ID of the user.
+    :param str telegram_id: The ID of the user.
     """
-    # TODO API request
-    if id == 6432798382:
-        return "Contact", False
-    elif id == 6902285437:
-        return None, None
-    if user_exists:
-        return username, is_admin
-    else:
+    url = f'{URL}/GetUserById/{telegram_id}' 
+    try:
+        response = requests.get(url)
+        print(response)
+        if response.status_code == 200:
+            user_data = response.json()
+            print(user_data)
+            if user_data:
+                return user_data["login"], user_data["admin"]
+            else:
+                return None, None
+        else:
+            logging.error(f"Ошибка при получении данных пользователя. Код состояния: {response.status_code}")
+            return None, None
+    except Exception as e:
+        logging.error(str(e))
         return None, None
 
 
-async def api_create_user(id: str, name: str):
+async def api_create_user(telegram_id: int, login: str):
     """ 
     A helper function that creates a new user with the given ID and name.
     """
-    # TODO API request
-    global user_exists
-    global username
-    user_exists = True
-    username = name
-    return True
+    url = f'{URL}/CreateUser'
+    try:
+        # payload = {
+        #     "telegramId": telegram_id,
+        #     "login": login
+        # }
+        #response = requests.post(url, json=payload)
+        response = requests.post(f'{url}?telegramId={telegram_id}&login={login}')
 
+        if response.status_code == 201:
+            new_user_data = response.json()
+            print(new_user_data)
+            return True
+        elif response.status_code == 409:
+            logging.error("Пользователь уже зарегистрирован.")
+            return False
+        else:
+            logging.error(f"Ошибка при создании пользователя. Код состояния: {response.status_code}")
+            return False
+    except Exception as e:
+        logging.error(str(e))
+        return False
 
-async def api_get_bookings(id: str):
+async def api_get_bookings(telegram_id: str):
     """ 
     A helper function that returns a list of booking objects for the given user ID.
     """
-    # TODO API request
-    return [{'id': booking['id'], 'text': f"{booking['date']} {booking['time_start']} - {booking['time_end']} {booking['room']}"} for booking in bookings if not booking['cancelled']]
+    url = f'{URL}/GetBookingsByUserId?userId={telegram_id}'
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            bookings = response.json()
+            print(bookings)
+            formatted_bookings = [{'id': booking['id'], 'text': f"{booking['data'][:5]} {booking['startTime']} - {booking['endTime']} {booking['meetingRoom']['description']}"} for booking in bookings if not booking['canceled']]
+            return formatted_bookings
+        elif response.status_code == 404:
+            logging.error("Бронирования для указанного пользователя не найдены.")
+            return []
+        else:
+            logging.error(f"Ошибка при получении бронирований. Код состояния: {response.status_code}")
+            return None
+    except Exception as e:
+        logging.error(str(e))
+        return None
+    #return [{'id': booking['id'], 'text': f"{booking['date']} {booking['time_start']} - {booking['time_end']} {booking['room']}"} for booking in bookings if not booking['cancelled']]
 
 
-async def api_cancel_booking(id: str):
+async def api_cancel_booking(booking_id: str):
     """ 
     A helper function that cancels a booking with the given ID.
     """
-    # TODO API request
-    global bookings
-    bookings[int(id)-1]['cancelled'] = True
-    return True
+    url = f'{URL}/CanceleBooking?bookingId={booking_id}'
+    try:
+        response = requests.put(url)
+        print(response)
+        if response.status_code == 200:
+            logging.info("Бронирование успешно отменено.")
+            return True
+        elif response.status_code == 404:
+            logging.error("Бронирование не найдено.")
+            return False
+        else:
+            logging.error(f"Ошибка при отмене бронирования. Код состояния: {response.status_code}")
+            return False
+    except Exception as e:
+        logging.error(str(e))
+        return False
+    #bookings[int(id)-1]['cancelled'] = True
 
-
-async def api_update_admin(id: str):
+async def api_update_admin(user_id: str):
     """ 
     A helper function that updates a user with the given ID to admin.
     """
-    # TODO API request
-    return True
+    url = f'{URL}/Update'
+    try:
+        payload = {
+            "updatedUser": {"Id": user_id, "Admin": True},
+            "message": "MESSAGEFORACCEPTADMINSTATUS"  
+        }
+        response = requests.put(url, json=payload)
+        if response.status_code == 200:
+            logging.info("Статус пользователя успешно обновлен.")
+            return True
+        else:
+            logging.error(f"Ошибка. Код состояния: {response.status_code}")
+            return False
+    except Exception as e:
+        logging.error(str(e))
+        return False
 
 
 async def api_get_reports():
-    return reports
-
+    url = f'{URL}/GetReports' 
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            reports = response.json()
+            print(reports)
+            return reports
+        else:
+            logging.error(f"Ошибка при получении отчетов. Код состояния: {response.status_code}")
+            return None
+    except Exception as e:
+        logging.error(str(e))
+        return None
 
 @router.message(Command("start"))
 async def start_command(message: Message, state: FSMContext, bot: Bot):
@@ -235,6 +312,7 @@ async def create_user(callback_query: CallbackQuery, state: FSMContext):
     :param FSMContext state: The finite state machine context for the user.
     """
     data = await state.get_data()
+    print(data)
     username = data.get('username')
     if await api_create_user(callback_query.from_user.id, username):
         await send_edit_message(callback_query, f"{msg_text.msg_register_succ}\n{msg_text.msg_welcome.format(name=username)}", reply_markup=kb.main_menu_peer)
@@ -371,12 +449,13 @@ async def view_reports(callback_query: CallbackQuery, **kwargs):
     reports = await api_get_reports()
     msg = msg_text.format_string(''.join(
         [msg_text.msg_report_text.format(
-            date=report['date'],
-            from_name=report['from_name'],
-            from_id=report['from_id'],
-            to_name=report['to_name'],
-            to_id=report['to_id'],
-            reason=report['reason']
+            date=report['booking']['data'],
+            # id=report['id'],
+            from_name=report['senderUser']['login'],
+            from_id=report['senderUser']['telegramId'],
+            to_name=report['recipientUser']['login'],
+            to_id=report['recipientUser']['telegramId'],
+            reason=report['reportType']['reportText']
         ) for report in reports]))
     await send_edit_message(callback_query, msg, reply_markup=kb.back_menu)
 
